@@ -1,0 +1,22 @@
+telegram:
+  bot:
+    username: "tg_weather_bot"
+    token: "7584345784:AAGCVM8VpR37Gi3KBR0GMdBwFzE60qLVEPc"
+
+weather:
+  api:
+    key: "50256fba7831249df51e107b932a5b72"
+
+spring:
+  datasource:
+    url: "jdbc:h2:mem:testdb"
+    driver-class-name: "org.h2.Driver"
+    username: "sa"
+    password: "password"
+  jpa:
+    hibernate:
+      ddl-auto: "update"
+    database-platform: "org.hibernate.dialect.H2Dialect"
+
+server:
+  port: 8080
