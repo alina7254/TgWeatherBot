@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Component
 public class TelegramWeatherBot extends TelegramLongPollingBot {
@@ -26,8 +25,6 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
     private final String botToken;
     private final String weatherApiKey;
 
-    private final Map<String, String> countryCapitalMap;
-
     public TelegramWeatherBot(
             @Value("${telegram.bot.username}") String botUsername,
             @Value("${telegram.bot.token}") String botToken,
@@ -40,23 +37,8 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         this.weatherApiKey = weatherApiKey;
         this.restTemplate = restTemplate;
         this.weatherRepository = weatherRepository;
-        this.countryCapitalMap = Map.of(
-                "France", "Paris",
-                "Germany", "Berlin",
-                "Italy", "Rome",
-                "Spain", "Madrid",
-                "United Kingdom", "London",
-                "United States", "Washington D.C.",
-                "Canada", "Ottawa",
-                "Australia", "Canberra",
-                "Japan", "Tokyo",
-                "Brazil", "Brasília"
-        );
     }
 
-    private String getCapitalByCountry(String country) {
-        return countryCapitalMap.getOrDefault(country, "Unknown");
-    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -67,19 +49,14 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
             String response;
 
+
             if (messageText.startsWith(WEATHER_COMMAND)) {
                 String[] parts = messageText.split(" ", 2);
                 if (parts.length < 2) {
-                    response = "Please provide a country name after /weather command.";
+                    response = "Please provide a city name after /weather command.";
                 } else {
-                    String country = parts[1];
-                    String capital = getCapitalByCountry(country);
-                    if (capital != null) {
-                        response = String.format("The capital of %s is %s. Fetching weather information...", country, capital);
-                        response += "\n" + getWeather(capital);
-                    } else {
-                        response = "Country not found. Please try again.";
-                    }
+                    String city = parts[1];
+                    response = getWeather(city);
                 }
             } else if (messageText.equals(HELP_COMMAND)) {
                 response = getHelpMessage();
@@ -91,7 +68,6 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
             logRequest(userId, messageText, response);
         }
     }
-
 
 
     private String getWeather(String city) {
@@ -113,13 +89,16 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         }
     }
 
+
     private String getHelpMessage() {
         return """
                 Available commands:
-                /weather [country] - Get the current weather for the capital city of the specified country.
+                /weather [city] - Get the current weather for the specified city.
                 /help - Show available commands.
                 """;
     }
+
+
 
     private void sendMessage(Long chatId, String text) {
         SendMessage message = new SendMessage();
@@ -132,6 +111,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         }
     }
 
+
     private void logRequest(Long userId, String command, String response) {
         UserAction log = new UserAction();
         log.setUserId(userId);
@@ -141,10 +121,15 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         weatherRepository.save(log);
     }
 
+
+
+
     @Override
     public String getBotUsername() {
         return botUsername;
     }
+
+
 
     @Override
     public String getBotToken() {
