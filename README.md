@@ -1,7 +1,7 @@
-# Telegram Weather Bot
+# Telegram Weather Bot/@tgweather_1337_bot
 
 Telegram Weather Bot — это бот для Telegram, который позволяет пользователям получать информацию о погоде в любых городах мира. Бот использует API OpenWeather для предоставления актуальной информации о погоде.
-@tgweather_1337_bot
+
 
 ## Установка и запуск
 
