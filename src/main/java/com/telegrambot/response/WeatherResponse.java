@@ -11,9 +11,12 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class WeatherResponse {
+
     private Main main;
     private List<Weather> weather;
     private Wind wind;
+    private Sys sys;
+    private String name;
 
     @Setter
     @Getter
@@ -21,7 +24,7 @@ public class WeatherResponse {
     public static class Main {
         private double temp;
         @JsonProperty("feels_like")
-        private double feels_like;
+        private double feelsLike;
         private int humidity;
     }
 
@@ -39,5 +42,14 @@ public class WeatherResponse {
     public static class Wind {
         private double speed;
     }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class Sys {
+        @JsonProperty("country")
+        private String country;
+    }
 }
+
 

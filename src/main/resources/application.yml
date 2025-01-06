@@ -7,6 +7,28 @@ weather:
   api:
     key: "50256fba7831249df51e107b932a5b72"
 
+geomagnetic:
+  api:
+    url: "https://services.swpc.noaa.gov/json/planetary_k_index_1m.json"
+
+moon:
+  api:
+    app-id: "834e37e0-4f0f-40b0-b3e7-de6f44233f5c"
+    app-secret: "f87b2f6dc7cbdabe1f90b72bcadf81a22ee759aae5ca4fcc3a5ec83b881decc3d85a7fa8a7f966eeba8b711754a5d04c2379c2c02bc1584dceea380b9b7c5a9481604a60323c4381e7b5325d44871c4bc1ea8d11568f8bd3ac041616394ffc8aca56236499cab6984e66dd5cab09c0c2"
+
+craiyon:
+  api:
+    url: "https://www.craiyon.com/generate"
+
+selenium:
+  driver-path: "C:/Tools/chromedriver/chromedriver.exe"
+
+logging:
+  level:
+    root: INFO
+    com.telegrambot: DEBUG
+    com.telegrambot.client.CraiyonClient: DEBUG
+
 spring:
   datasource:
     url: "jdbc:h2:mem:testdb"
