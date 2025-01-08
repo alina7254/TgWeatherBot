@@ -1,7 +1,7 @@
 package com.telegrambot.bot;
 
-import com.telegrambot.client.CraiyonClient;
 import com.telegrambot.response.WeatherResponse;
+import com.telegrambot.util.ImageGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 @EnableScheduling
 public class TelegramWeatherBot extends TelegramLongPollingBot {
 
-    private static final Logger logger = LoggerFactory.getLogger(TelegramWeatherBot.class);
+    public static final Logger logger = LoggerFactory.getLogger(TelegramWeatherBot.class);
 
     private static final String START_COMMAND = "/start";
     private static final String WEATHER_COMMAND = "Погода";
@@ -107,16 +108,24 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendImageWithCaption(Long chatId, String imageUrl, String caption) {
+    private void sendGeneratedImageWithCaption(Long chatId, String title, String subtitle, String details, String iconUrl) {
         try {
+            // Генерация изображения с использованием универсального ImageGenerator
+            byte[] imageBytes = ImageGenerator.generateImage(title, subtitle, details, iconUrl);
+
+            // Подготовка сообщения с изображением
             SendPhoto sendPhoto = new SendPhoto();
             sendPhoto.setChatId(chatId.toString());
-            sendPhoto.setPhoto(new InputFile(imageUrl));
-            sendPhoto.setCaption(caption);
+            sendPhoto.setPhoto(new InputFile(new ByteArrayInputStream(imageBytes), "generated.png"));
+            sendPhoto.setCaption(String.format("%s\n%s\n%s", title, subtitle, details));
+
+            // Отправка изображения
             execute(sendPhoto);
-        } catch (TelegramApiException e) {
-            logger.error("Ошибка при отправке изображения", e);
-            sendMessage(chatId, "Ошибка при отправке изображения. Вот текстовые данные:\n" + caption);
+        } catch (Exception e) {
+            logger.error("Ошибка при отправке изображения: {}", e.getMessage(), e);
+            // Отправка текстового сообщения в случае ошибки
+            sendMessage(chatId, "Ошибка при генерации или отправке изображения. Вот текстовые данные:\n" +
+                    String.format("%s\n%s\n%s", title, subtitle, details));
         }
     }
 
@@ -127,27 +136,35 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         String moonPhase = determineMoonPhase(lunarDay);
         String zodiacSign = calculateLunarZodiacSign(now);
 
-        String message = String.format(
-                "Сегодня %d лунный день\nФаза Луны: %s\nЛуна в знаке зодиака: %s",
-                lunarDay, moonPhase, zodiacSign
-        );
+        String title = String.format("Сегодня %d лунный день", lunarDay);
+        String subtitle = String.format("Фаза Луны: %s", moonPhase);
+        String details = String.format("Луна в знаке зодиака: %s", zodiacSign);
 
-        String prompt = String.format(
-                "Decoupage Art, Drawing. Today is lunar day %d with a %s moon, currently in the zodiac sign of %s.",
-                lunarDay, moonPhase, zodiacSign
-        );
+        String iconUrl = getMoonPhaseIconUrl(moonPhase);
 
-        String imageUrl;
         try {
-            imageUrl = CraiyonClient.generateImage(prompt);
+            sendGeneratedImageWithCaption(chatId, title, subtitle, details, iconUrl);
         } catch (Exception e) {
-            logger.error("Ошибка генерации изображения через Craiyon", e);
-            sendMessage(chatId, "\n" + message);
-            return;
+            logger.error("Ошибка при генерации изображения", e);
+            sendMessage(chatId, title + "\n" + subtitle + "\n" + details);
         }
-
-        sendImageWithCaption(chatId, imageUrl, message);
     }
+
+    private String getMoonPhaseIconUrl(String moonPhase) {
+        Map<String, String> moonPhaseIcons = Map.of(
+                "Новолуние", "https://openweathermap.org/img/wn/01n.png",
+                "Растущий серп", "https://cdn-icons-png.flaticon.com/512/4149/4149709.png",
+                "Первая четверть", "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+                "Растущая Луна", "https://cdn-icons-png.flaticon.com/512/4149/4149712.png",
+                "Полнолуние", "https://openweathermap.org/img/wn/01d.png",
+                "Убывающая Луна", "https://cdn-icons-png.flaticon.com/512/4149/4149710.png",
+                "Последняя четверть", "https://cdn-icons-png.flaticon.com/512/869/869872.png",
+                "Убывающий серп", "https://cdn-icons-png.flaticon.com/512/4149/4149711.png"
+        );
+
+        return moonPhaseIcons.getOrDefault(moonPhase, "https://cdn-icons-png.flaticon.com/512/4149/4149720.png");
+    }
+
 
 
     private int calculateLunarDay(LocalDateTime now) {
@@ -240,47 +257,32 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                 city, weatherApiKey
         );
         logger.info("Запрос погоды для города: {}", city);
+
         try {
             WeatherResponse weatherResponse = restTemplate.getForObject(url, WeatherResponse.class);
 
             if (weatherResponse != null) {
-                String response = String.format(
-                        "Погода в городе %s:\nТемпература: %.1f°C\nОщущается как: %.1f°C\nВлажность: %d%%\nСкорость ветра: %.1f м/с\nОписание: %s",
-                        weatherResponse.getName(),
-                        weatherResponse.getMain().getTemp(),
-                        weatherResponse.getMain().getFeelsLike(),
+                String title = "Погода в городе " + weatherResponse.getName();
+                String subtitle = String.format("Температура: %.1f°C, Ощущается как: %.1f°C",
+                        weatherResponse.getMain().getTemp(), weatherResponse.getMain().getFeelsLike());
+                String details = String.format("Влажность: %d%%, Скорость ветра: %.1f м/с, %s",
                         weatherResponse.getMain().getHumidity(),
                         weatherResponse.getWind().getSpeed(),
-                        weatherResponse.getWeather().get(0).getDescription()
-                );
+                        weatherResponse.getWeather().get(0).getDescription());
 
-                String prompt = String.format(
-                        "Decoupage Art, Drawing. The weather is %s with a temperature of %.1f°C (feels like %.1f°C), " +
-                                "humidity at %d%%, and wind speed %.1f m/s.",
-                        weatherResponse.getWeather().get(0).getDescription(),
-                        weatherResponse.getMain().getTemp(),
-                        weatherResponse.getMain().getFeelsLike(),
-                        weatherResponse.getMain().getHumidity(),
-                        weatherResponse.getWind().getSpeed()
-                );
+                String iconCode = weatherResponse.getWeather().get(0).getIcon();
+                String iconUrl = String.format("https://openweathermap.org/img/wn/%s@2x.png", iconCode);
 
-                String imageUrl;
-                try {
-                    imageUrl = CraiyonClient.generateImage(prompt);
-                } catch (Exception e) {
-                    logger.error("Ошибка генерации изображения через Craiyon", e);
-                    sendMessage(chatId, "\n" + response);
-                    return;
-                }
-
-                sendImageWithCaption(chatId, imageUrl, response);
+                sendGeneratedImageWithCaption(chatId, title, subtitle, details, iconUrl);
             } else {
                 sendMessage(chatId, "Не удалось получить данные о погоде для города: " + city);
             }
         } catch (Exception e) {
+            logger.error("Ошибка получения данных о погоде для города", e);
             sendMessage(chatId, "Ошибка получения данных о погоде для города: " + city);
         }
     }
+
 
 
     private void sendMagneticStormsInfo(Long chatId) {
@@ -326,32 +328,30 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                 description = "Экстремально сильная буря";
             }
 
-            String message = String.format(
-                    "Уровень геомагнитной бури: %s (%s)\nИндекс Kp: %.1f",
-                    gLevel, description, kpIndex
-            );
+            String title = String.format("Уровень геомагнитной бури: %s", gLevel);
+            String subtitle = String.format("Индекс Kp: %.1f", kpIndex);
+            String details = String.format("Описание: %s", description);
 
-            String prompt = String.format(
-                    "Decoupage Art, Drawing. The magnetic storm level is %s (%s) with a Kp index of %.1f.",
-                    gLevel, description, kpIndex
-            );
+            String iconUrl = getMagneticStormIconUrl(gLevel);
 
-            String imageUrl;
-            try {
-                imageUrl = CraiyonClient.generateImage(prompt);
-            } catch (Exception e) {
-                logger.error("Ошибка генерации изображения через Craiyon", e);
-                sendMessage(chatId, "\n" + message);
-                return;
-            }
-
-            sendImageWithCaption(chatId, imageUrl, message);
-
+            sendGeneratedImageWithCaption(chatId, title, subtitle, details, iconUrl);
         } catch (Exception e) {
+            logger.error("Ошибка при получении данных о магнитных бурях", e);
             sendMessage(chatId, "Ошибка при получении данных о магнитных бурях.");
         }
     }
 
+    private String getMagneticStormIconUrl(String gLevel) {
+        Map<String, String> stormIcons = Map.of(
+                "G1", "https://cdn-icons-png.flaticon.com/512/6331/6331940.png",
+                "G2", "https://cdn-icons-png.flaticon.com/512/6331/6331942.png",
+                "G3", "https://cdn-icons-png.flaticon.com/512/6331/6331943.png",
+                "G4", "https://cdn-icons-png.flaticon.com/512/6331/6331945.png",
+                "G5", "https://cdn-icons-png.flaticon.com/512/6331/6331947.png"
+        );
+
+        return stormIcons.getOrDefault(gLevel, "https://cdn-icons-png.flaticon.com/512/6331/6331939.png");
+    }
 
     private void sendMessage(Long chatId, String text) {
         SendMessage message = new SendMessage();

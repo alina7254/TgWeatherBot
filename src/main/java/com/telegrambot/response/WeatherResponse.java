@@ -34,6 +34,7 @@ public class WeatherResponse {
     public static class Weather {
         private String main;
         private String description;
+        private String icon;
     }
 
     @Setter
@@ -51,5 +52,6 @@ public class WeatherResponse {
         private String country;
     }
 }
+
 
 

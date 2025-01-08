@@ -2,10 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/lingva-translate" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/stable-diffusion-webui" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/stable-diffusion-webui/repositories/k-diffusion" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/stable-diffusion-webui/repositories/sgm" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/stable-diffusion-webui/repositories/stable-diffusion-stability-ai" vcs="Git" />
   </component>
 </project>
