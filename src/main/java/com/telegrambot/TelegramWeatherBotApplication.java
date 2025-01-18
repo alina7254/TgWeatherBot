@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @SpringBootApplication
 @EnableScheduling
@@ -26,8 +24,8 @@ public class TelegramWeatherBotApplication {
     @Bean
     public CommandLineRunner run(TelegramWeatherBot bot) {
         return args -> {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(bot);
+            String webhookUrl = "https://grove-geode-beret.glitch.me/webhook/telegram";
+            bot.setWebhook(webhookUrl);
         };
     }
 
