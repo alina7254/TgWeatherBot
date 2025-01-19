@@ -42,7 +42,7 @@ public class WebhookController {
         return ResponseEntity.ok(logs);
     }
 
-    @GetMapping("/logs/{userId}")
+    @GetMapping("/logs/user/{userId}")
     public ResponseEntity<List<UserAction>> getLogsByUser(@PathVariable Long userId) {
         List<UserAction> logs = weatherRepository.findByUserId(userId);
         if (logs.isEmpty()) {
@@ -63,6 +63,7 @@ public class WebhookController {
         return ResponseEntity.ok(savedLog);
     }
 }
+
 
 
 
