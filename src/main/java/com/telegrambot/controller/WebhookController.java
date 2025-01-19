@@ -4,6 +4,7 @@ import com.telegrambot.bot.TelegramWeatherBot;
 import com.telegrambot.repository.WeatherRepository;
 import com.telegrambot.response.LogRequest;
 import com.telegrambot.model.UserAction;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -27,9 +28,15 @@ public class WebhookController {
 
     @PostMapping("/update")
     public ResponseEntity<Void> handleUpdate(@RequestBody String updateJson) {
-        logger.info("Получено обновление: {}", updateJson);
-        return ResponseEntity.ok().build();
+        try {
+            logger.info("Получено обновление: {}", updateJson);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Ошибка обработки обновления: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
 
     @GetMapping("/ping")
     public ResponseEntity<String> pingWebhook() {
