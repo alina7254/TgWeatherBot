@@ -17,7 +17,7 @@ import static com.telegrambot.bot.TelegramWeatherBot.logger;
 
 @RestController
 @RequestMapping("/webhook/telegram")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class WebhookController {
 
     private final TelegramWeatherBot bot;
