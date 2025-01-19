@@ -34,5 +34,5 @@ spring:
     database-platform: "org.hibernate.dialect.H2Dialect"
 
 server:
-  port: ${PORT:8080}
+  port: 3000
 
