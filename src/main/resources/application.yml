@@ -32,7 +32,10 @@ spring:
     hibernate:
       ddl-auto: "update"
     database-platform: "org.hibernate.dialect.H2Dialect"
+  mvc:
+    pathmatch:
+      matching-strategy: "ant-path-matcher"
 
 server:
-  port: 3000
+  port: ${PORT:3000}
 
