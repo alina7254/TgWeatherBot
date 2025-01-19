@@ -25,24 +25,24 @@ public class WebhookController {
         this.weatherRepository = weatherRepository;
     }
 
-    @PostMapping
+    @PostMapping("/update")
     public ResponseEntity<Void> handleUpdate(@RequestBody String updateJson) {
         logger.info("Получено обновление: {}", updateJson);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping("/ping")
     public ResponseEntity<String> pingWebhook() {
         return ResponseEntity.ok("Webhook работает");
     }
 
-    @GetMapping
+    @GetMapping("/logs")
     public ResponseEntity<List<UserAction>> getAllLogs() {
         List<UserAction> logs = weatherRepository.findAll();
         return ResponseEntity.ok(logs);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/logs/{userId}")
     public ResponseEntity<List<UserAction>> getLogsByUser(@PathVariable Long userId) {
         List<UserAction> logs = weatherRepository.findByUserId(userId);
         if (logs.isEmpty()) {
