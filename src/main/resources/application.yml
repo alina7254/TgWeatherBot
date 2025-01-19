@@ -21,7 +21,6 @@ logging:
   level:
     root: INFO
     com.telegrambot: DEBUG
-    com.telegrambot.client.CraiyonClient: DEBUG
 
 spring:
   datasource:
@@ -35,5 +34,5 @@ spring:
     database-platform: "org.hibernate.dialect.H2Dialect"
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 

@@ -14,7 +14,7 @@ import java.util.List;
 import static com.telegrambot.bot.TelegramWeatherBot.logger;
 
 @RestController
-@RequestMapping("/webhook")
+@RequestMapping("/webhook/telegram")
 public class WebhookController {
 
     private final TelegramWeatherBot bot;
@@ -25,7 +25,7 @@ public class WebhookController {
         this.weatherRepository = weatherRepository;
     }
 
-    @PostMapping("/webhook/telegram")
+    @PostMapping
     public void handleUpdate(@RequestBody Update update) {
         logger.info("Получено обновление: {}", update);
         bot.handleUpdate(update);
