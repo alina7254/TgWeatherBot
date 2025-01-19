@@ -26,11 +26,11 @@ public class WebhookController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> handleUpdate(@RequestBody Update update) {
-        logger.info("Получено обновление: {}", update);
-        bot.handleUpdate(update);
+    public ResponseEntity<Void> handleUpdate(@RequestBody String updateJson) {
+        logger.info("Получено обновление: {}", updateJson);
         return ResponseEntity.ok().build();
     }
+
 
 
     @GetMapping
