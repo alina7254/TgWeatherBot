@@ -1,5 +1,6 @@
 package com.telegrambot.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.telegrambot.bot.TelegramWeatherBot;
 import com.telegrambot.repository.WeatherRepository;
 import com.telegrambot.response.LogRequest;
@@ -16,6 +17,7 @@ import static com.telegrambot.bot.TelegramWeatherBot.logger;
 
 @RestController
 @RequestMapping("/webhook/telegram")
+@CrossOrigin(origins = "http://localhost:3000")
 public class WebhookController {
 
     private final TelegramWeatherBot bot;
@@ -26,17 +28,20 @@ public class WebhookController {
         this.weatherRepository = weatherRepository;
     }
 
-    @PostMapping("/update")
+    @PostMapping
     public ResponseEntity<Void> handleUpdate(@RequestBody String updateJson) {
         try {
             logger.info("Получено обновление: {}", updateJson);
+
+            Update update = new ObjectMapper().readValue(updateJson, Update.class);
+            bot.onWebhookUpdateReceived(update);
+
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Ошибка обработки обновления: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping("/ping")
     public ResponseEntity<String> pingWebhook() {
@@ -49,7 +54,7 @@ public class WebhookController {
         return ResponseEntity.ok(logs);
     }
 
-    @GetMapping("/logs/user/{userId}")
+    @GetMapping("/logs/{userId}")
     public ResponseEntity<List<UserAction>> getLogsByUser(@PathVariable Long userId) {
         List<UserAction> logs = weatherRepository.findByUserId(userId);
         if (logs.isEmpty()) {
@@ -58,7 +63,7 @@ public class WebhookController {
         return ResponseEntity.ok(logs);
     }
 
-    @PostMapping("/log")
+    @PostMapping("/logs")
     public ResponseEntity<UserAction> addLog(@RequestBody LogRequest request) {
         UserAction log = new UserAction();
         log.setUserId(request.getUserId());
@@ -70,6 +75,8 @@ public class WebhookController {
         return ResponseEntity.ok(savedLog);
     }
 }
+
+
 
 
 

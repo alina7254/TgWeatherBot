@@ -27,7 +27,6 @@ public class UserAction {
 
     @Column(length = 1000)
     private String response;
-
 }
 
 
