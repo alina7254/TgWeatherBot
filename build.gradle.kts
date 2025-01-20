@@ -67,3 +67,9 @@ tasks.build {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    archiveBaseName.set("TgWeatherBot")
+    archiveVersion.set("1.0.0")
+}
+
