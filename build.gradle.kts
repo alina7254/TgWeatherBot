@@ -53,7 +53,7 @@ dependencies {
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     archiveBaseName.set("TgWeatherBot")
-    archiveVersion.set("1.0")
+    archiveVersion.set("1.0-SNAPSHOT")
     archiveClassifier.set("")
     manifest {
         attributes["Main-Class"] = "com.telegrambot.TelegramWeatherBotApplication"
@@ -64,12 +64,10 @@ tasks.build {
     dependsOn(tasks.shadowJar)
 }
 
+
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.jar {
-    archiveBaseName.set("TgWeatherBot")
-    archiveVersion.set("1.0.0")
-}
+
 

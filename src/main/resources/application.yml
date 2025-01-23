@@ -37,5 +37,5 @@ spring:
       matching-strategy: "ant-path-matcher"
 
 server:
-  port: ${PORT:3000}
+  port: ${PORT:8000}
 

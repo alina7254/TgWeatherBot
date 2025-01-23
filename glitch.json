@@ -1,5 +1,6 @@
 {
   "version": "0.0.1",
-  "start": "java -jar target/TgWeatherBot.jar",
+  "start": "java -jar build/libs/TgWeatherBot-1.0-SNAPSHOT.jar",
   "port": 3000
 }
+
