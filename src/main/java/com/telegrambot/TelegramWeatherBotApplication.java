@@ -24,7 +24,7 @@ public class TelegramWeatherBotApplication {
     @Bean
     public CommandLineRunner run(TelegramWeatherBot bot) {
         return args -> {
-            String webhookUrl = "https://grove-geode-beret.glitch.me/webhook/telegram";
+            String webhookUrl = "https://full-deeply-rain.glitch.me/webhook/telegram";
             bot.setWebhook(webhookUrl);
         };
     }
