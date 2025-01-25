@@ -23,9 +23,12 @@ jobs:
       run: |
         ./gradlew clean build
 
-    - name: Deploy to GitHub
+    - name: Deploy to Glitch
       run: |
-       curl -X POST "https://full-deeply-rain.glitch.me/webhook/telegram"
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "github-actions@github.com"
+        git remote add glitch https://fb9db5e1-1b40-4e62-aaa8-5954d216f20b@api.glitch.com/git/full-deeply-rain
+        git push glitch master
 
 
     
