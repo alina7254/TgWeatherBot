@@ -21,7 +21,7 @@ jobs:
 
       - name: Build project
         run: |
-          ./gradlew clean build
+          ./gradlew clean shadowJar
 
       - name: Deploy to GitHub
         run: |
